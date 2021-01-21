@@ -11,6 +11,7 @@ lazy-object-proxy==1.4.3
 MarkupSafe 
 mccabe==0.6.1
 pylint==2.6.0
+pyodbc==4.0.30
 six==1.15.0
 toml==0.10.2
 Werkzeug==1.0.1
