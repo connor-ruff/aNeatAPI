@@ -31,6 +31,7 @@ CREATE TABLE CaliList2021 (
 )
 
 
-select * from dbo.CaliList2021
+select * from dbo.YearList2021
+select * from dbo.LifeList
  
 
