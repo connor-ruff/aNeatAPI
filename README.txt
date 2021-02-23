@@ -5,4 +5,4 @@
 
 # All installed packages must be included in requirements.txt
 	- pip freeze > requirements.txt
-	- Remove all the @... stuff from it though!
+	- Remove all the @... stuff from it though!!
