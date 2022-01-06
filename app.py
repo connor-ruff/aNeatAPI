@@ -292,5 +292,30 @@ def addToYear2022():
 
     return json.dumps(output)
 
+@app.route('/getAllBirds', methods=['GET'])
+def getAllBirds():
+    output = {}
+    try:
+        output['Result'] = 'Success'
+        conn = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=tcp:ruffserver.database.windows.net,1433;Database=funData;Uid=connorruff;Pwd=Charlotte99!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
+        cursor = conn.cursor()
+        cursor.execute(f'SELECT Species_Code, Species FROM REF.TAXONOMY')
+        jsonResp = cursor.fetchall()
+        birdObj = []
+        key = 0
+        for entry in jsonResp:
+            birdObj.append({'key': key, 'value': entry[0], 'text': entry[1]})
+            key+=1
+   
+        output['Message'] = birdObj
+
+        
+    except Exception as e:
+        output['Result'] = 'Failure'
+        output['Message'] = [{'key': 0, 'value': 'null', 'text': 'Could Not Load Bird Data'}]
+
+    return json.dumps(output)
+
+
 if __name__ == '__main__':
     app.run()
