@@ -72,10 +72,10 @@ def list2022():
             birdObj = {}
             birdObj["Species_Code"] = row[0]
             birdObj["Species"] =row[1]
-            birdObj["FirstSightDate"] = row[2]
+            birdObj["FirstSightDate"] = str(row[2])
             birdObj["FirstSightCity"] = row[3]
             birdObj["FirstSightState"] = row[4]
-            birdObj["FirstSightDetails"] = str(row[5])
+            birdObj["FirstSightDetails"] = row[5]
             birdObj["WasLifeBird"] = row[6]
             output['Data'].append(birdObj)
 
