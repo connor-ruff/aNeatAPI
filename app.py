@@ -183,7 +183,7 @@ def addToLife():
     usageString = '''
     Data Sent Via POST Should be A JSON Structure With the Following Form:
     {
-        'birds': [<list of bird codes],
+        'birds': [{'value' : birdCode, 'label': birdSpecies}....],
         'date' : <Date of Sight>,
         'city' : <City of Sight>,
         'state' : <state of sight>,
@@ -191,7 +191,7 @@ def addToLife():
     }
     '''
     output = {}
-    output['Message'] = []
+    output['Message'] = {'AddedToLife' : [], 'AlreadyInLife': []}
     output['Usage'] = usageString
     
 
@@ -204,27 +204,24 @@ def addToLife():
 
         # grab user data and loop through
         userData = request.json 
+        
         for bird in userData['birds']:
             # search for species in list already
-            cursor.execute(f'SELECT * FROM TMP.LifeList WHERE Species_Code = ?', bird)
+            cursor.execute(f'SELECT * FROM FACT.LifeList WHERE Species_Code = ?', bird['value'])
             listRet = cursor.fetchall()
             
             # if species in table already
             if len(listRet) != 0:
-                output['Message'].append({'SpeciesCode' : bird, 'InLifeAlready' : 'True' })
+                output['Message']['AlreadyInLife'].append(bird['label'])
             # if species is not in table already
             else:
-                output['Message'].append({'SpeciesCode' : bird, 'InLifeAlready' : 'False' })
+                output['Message']['AddedToLife'].append(bird['label'])
                 # Add To Object Containing the Entries
-                cursor.execute(f'SELECT SPECIES FROM REF.TAXONOMY WHERE Species_Code = ?', bird)
-                birdSpecies = cursor.fetchone()[0]
-                print(birdSpecies)
-                speciesToAdd.append([bird, birdSpecies, userData['date'], userData['city'], userData['state'], userData['details']])
-                print(bird)
+                speciesToAdd.append([bird['value'], bird['label'], userData['date'], userData['city'], userData['state'], userData['details']])
+               
         # Insert All Species That Were Not Already In Life List 
         if len(speciesToAdd) > 0:
-            query_string = 'INSERT INTO TMP.LifeList (Species_Code, Species, First_Sight_Date, First_Sight_City, First_Sight_State, First_Sight_Details) VALUES (?, ?, ?, ?, ?, ?)'
-            print(speciesToAdd)
+            query_string = 'INSERT INTO FACT.LifeList (Species_Code, Species, First_Sight_Date, First_Sight_City, First_Sight_State, First_Sight_Details) VALUES (?, ?, ?, ?, ?, ?)'
             cursor.executemany(query_string, speciesToAdd)
             conn.commit()    
 
@@ -244,7 +241,7 @@ def addToYear2022():
     usageString = '''
     Data Sent Via POST Should be A JSON Structure With the Following Form:
     {
-        'birds': [<list of bird codes>],
+        'birds': [{'value' : birdCode, 'label': birdSpecies}....],
         'date' : <Date of Sight>,
         'city' : <City of Sight>,
         'state' : <state of sight>,
@@ -252,7 +249,7 @@ def addToYear2022():
     }
     '''
     output = {}
-    output['Message'] = []
+    output['Message'] = {'AddedToYear' : [], 'AlreadyInYear': []}
     output['Usage'] = usageString
     
 
@@ -265,33 +262,32 @@ def addToYear2022():
 
         # grab user data and loop through
         userData = request.json 
+        print(userData)
         for bird in userData['birds']:
             # search for species in list already
-            cursor.execute(f'SELECT * FROM TMP.YearList2022 WHERE Species_Code = ?', bird)
+            cursor.execute(f'SELECT * FROM FACT.YearList2022 WHERE Species_Code = ?', bird['value'])
             listRet = cursor.fetchall()
             
             
             # if species in table already
             if len(listRet) != 0:
-                output['Message'].append({'SpeciesCode' : bird, 'In2022Already' : 'True' })
+                output['Message']['AlreadyInYear'].append(bird['label'])
             # if species is not in table already
             else:
-                output['Message'].append({'SpeciesCode' : bird, 'In2022Already' : 'False' })
+                output['Message']['AddedToYear'].append(bird['label'])
                 # Add To Object Containing the Entries
-                cursor.execute('SELECT SPECIES FROM REF.TAXONOMY WHERE Species_Code = ?', bird)
-                birdSpecies = cursor.fetchone()[0]
-                cursor.execute('SELECT SPECIES FROM TMP.LifeList WHERE Species_Code = ?', bird)
+                cursor.execute('SELECT SPECIES FROM FACT.LifeList WHERE Species_Code = ?', bird['value'])
                 if len(cursor.fetchall()) == 0:
                     WasLifeBird = 1
                 else:
                     WasLifeBird = 0
                
-                speciesToAdd.append([bird, birdSpecies, userData['date'], userData['city'], userData['state'], userData['details'], WasLifeBird])
+                speciesToAdd.append([bird['value'], bird['label'], userData['date'], userData['city'], userData['state'], userData['details'], WasLifeBird])
 
        
         # Insert All Species That Were Not Already In Life List 
         if len(speciesToAdd) > 0:
-            query_string = 'INSERT INTO TMP.YearList2022 (Species_Code, Species, First_Sight_Date, First_Sight_City, First_Sight_State, First_Sight_Details, WasLifeBird) VALUES (?, ?, ?, ?, ?, ?, ?)'
+            query_string = 'INSERT INTO FACT.YearList2022 (Species_Code, Species, First_Sight_Date, First_Sight_City, First_Sight_State, First_Sight_Details, WasLifeBird) VALUES (?, ?, ?, ?, ?, ?, ?)'
             cursor.executemany(query_string, speciesToAdd)
             conn.commit()    
 
@@ -318,14 +314,16 @@ def getAllBirds():
         birdObj = []
         key = 0
         for entry in jsonResp:
-            birdObj.append({'key': key, 'value': entry[0], 'text': entry[1]})
+          #  birdObj.append({'key': key, 'value': entry[0], 'text': entry[1]})
+            birdObj.append({'value': entry[0], 'label': entry[1]})
             key+=1
    
         output['Message'] = birdObj
 
     except Exception as e:
         output['Result'] = 'Failure'
-        output['Message'] = [{'key': 0, 'value': 'null', 'text': 'Could Not Load Bird'}]
+     #   output['Message'] = [{'key': 0, 'value': 'null', 'text': 'Could Not Load Bird'}]
+        output['Message'] = [{'value': entry[0], 'label': entry[1]}]
 
     return json.dumps(output)
 
