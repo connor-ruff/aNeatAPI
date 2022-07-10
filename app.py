@@ -95,7 +95,7 @@ def listList():
 
         conn = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=tcp:ruffserver.database.windows.net,1433;Database=funData;Uid=connorruff;Pwd=Charlotte99!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
         cursor = conn.cursor()
-        cursor.execute('SELECT * from dbo.LifeList')
+        cursor.execute('SELECT * from FACT.LifeList')
 
         output['Data'] = []
 
