@@ -73,16 +73,15 @@ def listList():
 
         for row in cursor.fetchall():
             birdObj = {}
-            birdObj["ID"] = row[0]
-            birdObj['Species'] = row[1]
-            birdObj['Category'] = row[2]
-            birdObj['CategoryAlt'] = row[3]
-            birdObj['FirstSightCity'] = row[4]
-            birdObj['FirstSightState'] = row[5]
-            birdObj['FirstSightDetails'] = row[6]
-            birdObj['FirstSightDate'] = str(row[7])
-
+            birdObj["Species_Code"] = row[0]
+            birdObj["Species"] =row[1]
+            birdObj["FirstSightDate"] = str(row[2])
+            birdObj["FirstSightCity"] = row[3]
+            birdObj["FirstSightState"] = row[4]
+            birdObj["FirstSightDetails"] = row[5]
             output['Data'].append(birdObj)
+
+          
 
     except Exception as e:
         output['Result'] = 'Failure'
