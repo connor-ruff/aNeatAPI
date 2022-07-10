@@ -18,7 +18,7 @@ def home():
         conn = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=tcp:ruffserver.database.windows.net,1433;Database=funData;Uid=connorruff;Pwd=Charlotte99!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
 
         cursor = conn.cursor()
-        cursor.execute('SELECT * from dbo.YearList2021 where BIRD_ID = 1')
+        cursor.execute('SELECT TOP 1 * from FACT.LifeList')
 
         row = cursor.fetchone()
         output = str(row)
@@ -27,35 +27,7 @@ def home():
 
     return output
 
-@app.route('/list2021')
-def list2021():
-    output = {}
-    try:
-        output['Result'] = 'Success'
-        conn = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=tcp:ruffserver.database.windows.net,1433;Database=funData;Uid=connorruff;Pwd=Charlotte99!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
-        cursor = conn.cursor()
-        cursor.execute('SELECT * from dbo.YearList2021')
-
-        output['Data'] = []
-
-        for row in cursor.fetchall():
-            birdObj = {}
-            birdObj["ID"] = row[0]
-            birdObj["Species"] =row[1]
-            birdObj["Category"] = row[2]
-            birdObj["CategoryAlt"] = row[3]
-            birdObj["FirstSightCity"] = row[4]
-            birdObj["FirstSightState"] = row[5]
-            birdObj["FirstSightDetails"] = row[6]
-            birdObj["FirstSightDate"] = str(row[7])
-            birdObj["WasLifeBird"] = row[8]
-            output['Data'].append(birdObj)
-
-    except Exception as e:
-        output['Result'] = 'Failure'
-        output['Message'] = str(e)
-
-    return json.dumps(output)     
+  
 
 @app.route('/list2022')
 def list2022():
@@ -118,90 +90,8 @@ def listList():
 
     return json.dumps(output)
 
-@app.route('/lifelistobj')
-def lifeListObj():
-
-    output = {}
-
-    try:
-        output['Result'] = 'Success'
-        
-
-        conn = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=tcp:ruffserver.database.windows.net,1433;Database=funData;Uid=connorruff;Pwd=Charlotte99!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
-        cursor = conn.cursor()
-        cursor.execute('SELECT * from dbo.LifeList')
-
-        output['Data'] = {}
-
-        for row in cursor.fetchall():
-            birdObj = {}
-            birdObj['Species'] = row[1]
-            birdObj['Category'] = row[2]
-            birdObj['CategoryAlt'] = row[3]
-            birdObj['FirstSightCity'] = row[4]
-            birdObj['FirstSightState'] = row[5]
-            birdObj['FirstSightDetails'] = row[6]
-            birdObj['FirstSightDate'] = str(row[7])
-
-            output['Data'][row[0]] = birdObj
-
-    except Exception as e:
-        output['Result'] = 'Failure'
-        output['Message'] = str(e)
-
-    return json.dumps(output)
-
-@app.route('/getbird', methods=['POST'])
-def getbird():
-    # Get the user input
-    output = {}
-  
-
-    try:
-        output['Result'] = 'Success'
-        output['Data'] = {}
-        userData = request.form
-        birdToFind = userData['bird']
-        # Search Databases
-        conn = pyodbc.connect('Driver={ODBC Driver 17 for SQL Server};Server=tcp:ruffserver.database.windows.net,1433;Database=funData;Uid=connorruff;Pwd=Charlotte99!;Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;')
-        cursor = conn.cursor()
-        cursor.execute(f'SELECT * from dbo.LifeList WHERE species = ''?'' ', birdToFind)
-        lifeListRet = cursor.fetchall()
-        output['Data']['Life'] = {}
-        if (len(lifeListRet) > 0):
-            output['Data']['Life']['Found'] = 'True'
-            output['Data']['Life']['Entry'] = {}
-            birdObj = {}
-            birdObj['Species'] = lifeListRet[1]
-            birdObj['Category'] = lifeListRet[2]
-            birdObj['CategoryAlt'] = lifeListRet[3]
-            birdObj['FirstSightCity'] = lifeListRet[4]
-            birdObj['FirstSightState'] = lifeListRet[5]
-            birdObj['FirstSightDetails'] = lifeListRet[6]
-            birdObj['FirstSightDate'] = str(lifeListRet[7])
-
-        else:
-            output['Data']['Life']['Found'] = 'False'
-
-        cursor.execute(f'SELECT * from dbo.YearList2021 WHERE species = ''?'' ', birdToFind)
-        lifeListRet = cursor.fetchall()
-        output['Data']['Year'] = {}
-        if (len(lifeListRet) > 0):
-            output['Data']['Year']['Found'] = 'True'
-            output['Data']['Year']['Entry'] = str(lifeListRet[0])
-        else:
-            output['Data']['Year']['Found'] = 'False'
 
 
-    except Exception as e:
-        output['Result'] = 'Failure'
-        output['Message'] = str(e)
-        output['Usage'] = usageString
-
-
-    return json.dumps(output)
-
-    # return an object 
 
 @app.route('/addToLife', methods=['POST'])
 def addToLife():
